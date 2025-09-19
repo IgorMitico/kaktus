@@ -1,8 +1,8 @@
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use rand::seq::SliceRandom;
 use rand::rng;
+use rand::seq::SliceRandom;
 
 #[derive(EnumIter, Clone, Copy, Debug)]
 pub enum Suit {
@@ -25,7 +25,6 @@ pub enum CardName {
     Jack,
     Queen,
 }
-
 
 impl CardName {
     pub fn get_value(&self) -> u8 {
@@ -74,7 +73,7 @@ impl Deck {
         }
         Deck { cards }
     }
-    pub fn shuffle(&mut self){
+    pub fn shuffle(&mut self) {
         let mut rng = rng();
         self.cards.shuffle(&mut rng);
     }
@@ -88,10 +87,18 @@ impl Deck {
             println!("{:?} of {:?}", card.name, card.suit);
         }
     }
+    // TODO: find a name for the function.
+    // fonction that put the discarded cards in the drawl pile and shuffle them
+    pub fn transfer_shuffle(&mut self, other: &mut Self) {
+        while let Some(x) = self.cards.pop() {
+            other.cards.push(x);
+        }
+        other.shuffle();
+    }
 }
 
 pub struct Hand {
-    pub cards: Vec<Box<Card>> 
+    pub cards: Vec<Box<Card>>,
 }
 
 impl Hand {
@@ -100,5 +107,7 @@ impl Hand {
             println!("{:?} of {:?}", card.name, card.suit);
         }
     }
+    pub fn get_value(&self) -> u8 {
+        self.cards.iter().map(|c| c.value).sum::<u8>()
+    }
 }
-
