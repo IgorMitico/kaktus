@@ -1,7 +1,10 @@
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-#[derive(EnumIter, Clone, Copy)]
+use rand::seq::SliceRandom;
+use rand::rng;
+
+#[derive(EnumIter, Clone, Copy, Debug)]
 pub enum Suit {
     Clubs,
     Diamonds,
@@ -9,7 +12,7 @@ pub enum Suit {
     Spades,
 }
 
-#[derive(EnumIter, Clone, Copy)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq)]
 pub enum CardName {
     King,
     Ace,
@@ -23,8 +26,9 @@ pub enum CardName {
     Queen,
 }
 
+
 impl CardName {
-    pub fn get_value(&self) -> usize {
+    pub fn get_value(&self) -> u8 {
         match self {
             CardName::King => 0,
             CardName::Ace => 1,
@@ -42,7 +46,7 @@ impl CardName {
 
 pub struct Card {
     pub name: CardName,
-    pub value: usize,
+    pub value: u8,
     pub suit: Suit,
 }
 
@@ -57,17 +61,44 @@ impl Card {
 }
 
 pub struct Deck {
-    pub cards: Vec<Card>,
+    pub cards: Vec<Box<Card>>,
 }
 
 impl Deck {
     pub fn build() -> Self {
-        let mut cards: Vec<Card> = Vec::new();
+        let mut cards: Vec<Box<Card>> = Vec::new();
         for suit in Suit::iter() {
             for name in CardName::iter() {
-                cards.push(Card::build(name, suit));
+                cards.push(Box::new(Card::build(name, suit)));
             }
         }
         Deck { cards }
     }
+    pub fn shuffle(&mut self){
+        let mut rng = rng();
+        self.cards.shuffle(&mut rng);
+    }
+    pub fn draw(&mut self, hand: &mut Hand) {
+        if let Some(x) = self.cards.pop() {
+            hand.cards.push(x);
+        }
+    }
+    pub fn print(&self) {
+        for card in &self.cards {
+            println!("{:?} of {:?}", card.name, card.suit);
+        }
+    }
 }
+
+pub struct Hand {
+    pub cards: Vec<Box<Card>> 
+}
+
+impl Hand {
+    pub fn print(&self) {
+        for card in &self.cards {
+            println!("{:?} of {:?}", card.name, card.suit);
+        }
+    }
+}
+
