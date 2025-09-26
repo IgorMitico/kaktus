@@ -4,6 +4,8 @@ use strum_macros::EnumIter;
 use rand::rng;
 use rand::seq::SliceRandom;
 
+use std::fmt;
+
 #[derive(EnumIter, Clone, Copy, Debug)]
 pub enum Suit {
     Clubs,
@@ -59,55 +61,90 @@ impl Card {
     }
 }
 
+pub struct Cards(Vec<Box<Card>>);
+
+impl fmt::Display for Cards {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // write(f, "\n")?;
+
+        let mut index: u8 = 1;
+
+        for card in &self.0 {
+            let suit_emoji: &str = {
+                match card.suit {
+                    Suit::Clubs => "♣️",
+                    Suit::Spades => "♠️",
+                    Suit::Diamonds => "♦️",
+                    Suit::Hearts => "♥️",
+                }
+            };
+            let name_char: char = {
+                match card.name {
+                    CardName::King => 'K',
+                    CardName::Jack => 'J',
+                    CardName::Queen => 'Q',
+                    _ => char::from_digit(card.value as u32, 10).expect("WTF"),
+                }
+            };
+            write!(f, "{}{}, ", name_char, suit_emoji)?;
+
+            if index % 10 == 0 {
+                write!(f, "\n")?;
+            }
+            index += 1;
+        }
+
+        write!(f, "\n")
+    }
+}
+
+impl Cards {}
+
+// TODO: Deciding which functions need to be implemented in the struct Deck or cards
+
 pub struct Deck {
-    pub cards: Vec<Box<Card>>,
+    pub cards: Cards,
 }
 
 impl Deck {
     pub fn build() -> Self {
-        let mut cards: Vec<Box<Card>> = Vec::new();
+        let mut cards = Cards(Vec::new());
         for suit in Suit::iter() {
             for name in CardName::iter() {
-                cards.push(Box::new(Card::build(name, suit)));
+                cards.0.push(Box::new(Card::build(name, suit)));
             }
         }
         Deck { cards }
     }
     pub fn shuffle(&mut self) {
         let mut rng = rng();
-        self.cards.shuffle(&mut rng);
+        self.cards.0.shuffle(&mut rng);
     }
     pub fn draw(&mut self, hand: &mut Hand) {
-        if let Some(x) = self.cards.pop() {
-            hand.cards.push(x);
-        }
-    }
-    pub fn print(&self) {
-        for card in &self.cards {
-            println!("{:?} of {:?}", card.name, card.suit);
+        if let Some(x) = self.cards.0.pop() {
+            hand.cards.0.push(x);
         }
     }
     // TODO: find a name for the function.
     // fonction that put the discarded cards in the drawl pile and shuffle them
     pub fn transfer_shuffle(&mut self, other: &mut Self) {
-        while let Some(x) = self.cards.pop() {
-            other.cards.push(x);
+        while let Some(x) = self.cards.0.pop() {
+            other.cards.0.push(x);
         }
         other.shuffle();
     }
 }
 
 pub struct Hand {
-    pub cards: Vec<Box<Card>>,
+    pub cards: Cards,
 }
 
 impl Hand {
-    pub fn print(&self) {
-        for card in &self.cards {
-            println!("{:?} of {:?}", card.name, card.suit);
-        }
+    pub fn init() -> Self {
+        let mut cards = Cards(Vec::new());
+        Hand { cards }
     }
     pub fn get_value(&self) -> u8 {
-        self.cards.iter().map(|c| c.value).sum::<u8>()
+        self.cards.0.iter().map(|c| c.value).sum::<u8>()
     }
 }
