@@ -1,14 +1,14 @@
-use kaktus::Deck;
-use kaktus::Hand;
+use kaktus::player;
+use kaktus::cards;
 
 fn main() {
-    let mut draw_pile = Deck::build();
+    let mut draw_pile = cards::Deck::build();
 
     println!("\nDECK:\n{}", draw_pile.cards);
     draw_pile.shuffle();
     println!("\nAFTER THE SHUFFLE\n\nDECK:\n{}", draw_pile.cards);
 
-    let mut hand = Hand::init();
+    let mut hand = player::Hand::init();
 
     for _ in 0..4 {
         draw_pile.draw(&mut hand);
