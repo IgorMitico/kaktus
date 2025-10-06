@@ -1,3 +1,4 @@
+use crate::cards;
 use crate::cards::Cards;
 use std::fmt;
 
@@ -15,6 +16,15 @@ impl Hand {
     pub fn get_value(&self) -> u8 {
         self.cards.0.iter().map(|c| c.value).sum::<u8>()
     }
+    pub fn contains(&self, card_name: cards::CardName, card_suit: cards::Suit) -> bool {
+        let mut flag = false;
+        for card in &self.cards.0 {
+            if card.name == card_name && card.suit == card_suit {
+                flag = true;
+            }
+        }
+        flag
+    }
 }
 
 pub struct Player {
@@ -24,7 +34,13 @@ pub struct Player {
 
 impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}\n{}", &self.name, &self.hand.cards)
+        write!(
+            f,
+            "{}\n{} -> value: {}\n",
+            &self.name,
+            &self.hand.cards,
+            &self.hand.get_value()
+        )
     }
 }
 

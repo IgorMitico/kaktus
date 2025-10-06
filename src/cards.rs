@@ -8,11 +8,11 @@ use std::fmt;
 
 use crate::player::Hand;
 
-#[derive(EnumIter, Clone, Copy, Debug)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq)]
 pub enum Suit {
-    Clubs,
-    Diamonds,
     Hearts,
+    Diamonds,
+    Clubs,
     Spades,
 }
 

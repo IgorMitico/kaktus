@@ -13,4 +13,8 @@ fn main() {
     game::start(&mut players, &mut draw_pile);
 
     println!("\nDECK:\n{}\n\n{}", draw_pile.cards, players);
+
+    let (winner, value) = game::end(&players, 3);
+
+    println!("The winner is: {} with {} points in hand", players.players[winner].name, value);
 }
