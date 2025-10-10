@@ -6,7 +6,7 @@ use rand::seq::SliceRandom;
 
 use std::fmt;
 
-use crate::player::Hand;
+//use crate::player;
 
 #[derive(EnumIter, Clone, Copy, Debug, PartialEq)]
 pub enum Suit {
@@ -107,30 +107,30 @@ pub struct Deck {
 }
 
 impl Deck {
-    pub fn build() -> Self {
-        let mut cards = Cards(Vec::new());
+    pub fn init() -> Self {
+        let cards = Cards(Vec::new());
+        Deck { cards }
+    }
+    pub fn build(&mut self) {
         for suit in Suit::iter() {
             for name in CardName::iter() {
-                cards.0.push(Box::new(Card::build(name, suit)));
+                self.cards.0.push(Box::new(Card::build(name, suit)));
             }
         }
-        Deck { cards }
     }
     pub fn shuffle(&mut self) {
         let mut rng = rng();
         self.cards.0.shuffle(&mut rng);
     }
-    pub fn draw(&mut self, hand: &mut Hand) {
-        if let Some(x) = self.cards.0.pop() {
-            hand.cards.0.push(x);
-        }
-    }
     // TODO: find a name for the function.
-    // fonction that put the discarded cards in the drawl pile and shuffle them
-    pub fn transfer_shuffle(&mut self, other: &mut Self) {
+    // fonction that put the discarded cards in the draw pile and shuffle them
+    pub fn transfer_shuffle(&mut self, draw_pile: &mut Self) {
         while let Some(x) = self.cards.0.pop() {
-            other.cards.0.push(x);
+            draw_pile.cards.0.push(x);
         }
-        other.shuffle();
+        draw_pile.shuffle();
+        if let Some(x) = draw_pile.cards.0.pop() {
+            self.cards.0.push(x);
+        }
     }
 }
