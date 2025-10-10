@@ -36,10 +36,9 @@ impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}\n{} -> value: {}\n",
+            "{}\n{}\n",
             &self.name,
             &self.hand.cards,
-            &self.hand.get_value()
         )
     }
 }
@@ -52,16 +51,36 @@ impl Player {
         };
         player
     }
+    pub fn discard(&mut self, card: usize, pile: &mut cards::Deck) {
+        pile.cards.0.push(self.hand.cards.0.remove(card));
+    }
+    pub fn draw(&mut self, pile: &mut cards::Deck) {
+        if let Some(x) = pile.cards.0.pop() {
+            self.hand.cards.0.push(x);
+        }
+    }
+    // we need to find a name
+    pub fn the_move(&mut self, card1: usize, card2: usize, draw_pile: &mut cards::Deck, discard_pile: &mut cards::Deck) {
+        if card1 < self.hand.cards.0.len() && card2 < self.hand.cards.0.len() {
+            if self.hand.cards.0[card1].name == self.hand.cards.0[card2].name {
+                self.draw(discard_pile);
+                self.discard(card1, discard_pile);
+                self.discard(card2, discard_pile);
+            }
+            else {
+                self.draw(draw_pile);
+            }
+        }
+    }
 }
 
 pub struct Players {
     pub players: Vec<Player>,
-    pub n_players: usize,
 }
 
 impl fmt::Display for Players {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for n in 0..self.n_players {
+        for n in 0..self.players.len() {
             write!(f, "{}", &self.players[n])?;
         }
         write!(f, "--------------------")
@@ -77,6 +96,6 @@ impl Players {
                 name: format!("player_{n}"),
             });
         }
-        Players { players, n_players }
+        Players { players }
     }
 }

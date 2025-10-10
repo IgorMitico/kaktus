@@ -1,22 +1,26 @@
 use strum::IntoEnumIterator;
-//use strum_macros::EnumIter;
 
 use crate::cards;
 use crate::player;
 use crate::player::Players;
 
-pub fn start(players: &mut Players, deck: &mut cards::Deck) {
-    for n in 0..players.n_players {
+pub fn start(players: &mut Players, draw_pile: &mut cards::Deck, discard_pile: &mut cards::Deck) {
+    draw_pile.build();
+    draw_pile.shuffle();
+    for n in 0..players.players.len() {
         for _ in 0..4 {
-            deck.draw(&mut players.players[n].hand);
+            players.players[n].draw(draw_pile);
         }
     }
-}
+    if let Some(x) = draw_pile.cards.0.pop() {
+        discard_pile.cards.0.push(x);
+    }
+}   
 
 pub fn end(players: &Players, k_player: usize) -> (usize, u8) {
     let mut min_value = players.players[k_player].hand.get_value();
     let mut winner: usize = k_player;
-    for n in 0..players.n_players {
+    for n in 0..players.players.len() {
         if n == k_player {
             continue;
         }
